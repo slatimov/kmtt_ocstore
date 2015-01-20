@@ -1,0 +1,1 @@
+UPDATE `@@DB_MAIN_PREFIX@@user` SET username = '@@ADMIN_NAME@@', password = '@@ADMIN_PASSWORD@@', salt = '@@SALT@@', email = '@@ADMIN_EMAIL@@' WHERE user_id = '1';

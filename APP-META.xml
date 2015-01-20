@@ -1,0 +1,134 @@
+<application packaged="2014-10-01T09:03:11" version="1.2" xmlns="http://apstandard.com/ns/1">
+	<id>ocStore</id>
+	<name>ocStore</name>
+	<version>1.5.5.1.2</version>
+	<release>1</release>
+	<homepage>http://www.opencart.com/</homepage>
+	<vendor>
+		<name>www.opencart.com</name>
+		<homepage>http://www.parallels.com</homepage>
+		<icon path="images/parallelsLogo.jpg"/>
+	</vendor>
+
+	<packager>
+		<name>Komtet</name>
+		<homepage>http://www.komtet.ru</homepage>
+		<icon path="images/komtet.png"/>
+		<uri>uuid:0f463d3b-2a78-499e-976c-a55a515853c8</uri>
+	</packager>
+
+	<presentation>
+		<summary>ocStore - это онлайн магазин, который основан на базе Opencart и имеет открытый исходный код . Очень простое и надёжное решение для желающих создать собственный онлайн бизнес при минимальных затратах.</summary>
+		<description>ocStore полностью русифицированный stable-дистрибутив и содержит в себе самое необходимое для установки на ваш хостинг. Он многофункционален, прост в использовании, дружелюбен к поисковым системам и имеет простой и привлекательный интерфейс.</description>
+		<icon path="images/logo.png"/>
+		<screenshot path="images/screenshot_1.png">
+			<description>Public Screenshot</description>
+		</screenshot>
+		<changelog>
+<version release="1" version="1.5.5.1.2">
+				<entry>Новая версия приложения с исправленными ошибками.</entry>
+			</version>
+		</changelog>
+		<categories>
+			<category>Web/E-commerce</category>
+		</categories>
+		<languages>
+			<language>ru</language>
+		</languages>
+	</presentation>
+	<global-settings/>
+	<upgrade match="/application/version &gt;= '1.5.1'"/>
+	<service class="service" id="main">
+		<license must-accept="true">
+			<text>
+				<name>GPL</name>
+				<file>htdocs/license.txt</file>
+			</text>
+		</license>
+		<presentation>
+			<name>ocStore</name>
+			<summary>Ecommerce Package</summary>
+			<infolinks>
+				<link class="support" href="http://www.opencart.com/index.php?route=support/support">Support</link>
+			</infolinks>
+			<entry-points>
+				<entry class="control-panel" dst="/admin/" method="POST">
+					<label>Management Area</label>
+					<description/>
+					<variable name="username" value-of-setting="admin_name">admin@opencart.com</variable>
+					<variable name="password" value-of-setting="admin_password">opencart</variable>
+				</entry>
+			</entry-points>
+		</presentation>
+		<settings>
+			<group class="authn">
+				<name>Administrative Interface</name>
+				<setting class="login" default-value="admin" id="admin_name" max-length="20" min-length="1" type="string">
+					<name>User</name>
+				</setting>
+				<setting class="password" default-value="admin" id="admin_password" type="password">
+					<name>Password</name>
+				</setting>
+			</group>
+			<group class="vcard">
+				<name/>
+				<setting class="value" default-value="admin@opencart.com" id="admin_email" type="email">
+					<name>Email</name>
+				</setting>
+			</group>
+		</settings>
+		<requirements>
+			<php:register-globals xmlns:php="http://apstandard.com/ns/1/php">false</php:register-globals>
+			<php:magic-quotes-gpc xmlns:php="http://apstandard.com/ns/1/php">false</php:magic-quotes-gpc>
+			<php:extension xmlns:php="http://apstandard.com/ns/1/php">mysql</php:extension>
+			<php:extension xmlns:php="http://apstandard.com/ns/1/php">zlib</php:extension>
+			<php:extension xmlns:php="http://apstandard.com/ns/1/php">gd</php:extension>
+			<php:extension xmlns:php="http://apstandard.com/ns/1/php">mcrypt</php:extension>
+			<php:file-uploads xmlns:php="http://apstandard.com/ns/1/php">true</php:file-uploads>
+			<php:safe-mode xmlns:php="http://apstandard.com/ns/1/php">false</php:safe-mode>
+			<apache:htaccess xmlns:apache="http://apstandard.com/ns/1/apache"/>
+			<db:db xmlns:db="http://apstandard.com/ns/1/db">
+				<db:id>main</db:id>
+				<db:default-name>ocStore</db:default-name>
+				<db:can-use-tables-prefix>true</db:can-use-tables-prefix>
+				<db:server-type>mysql</db:server-type>
+				<db:server-min-version>4.1</db:server-min-version>
+			</db:db>
+			<php:version min="5.2" xmlns:php="http://apstandard.com/ns/1/php"/>
+		</requirements>
+		<provision>
+			<url-mapping>
+				<default-prefix>ocStore</default-prefix>
+				<installed-size>23225151</installed-size>
+				<mapping path="htdocs" url="/">
+					<php:handler xmlns:php="http://apstandard.com/ns/1/php">
+						<php:extension>php</php:extension>
+					</php:handler>
+					<mapping url="download">
+						<php:permissions writable="true" xmlns:php="http://apstandard.com/ns/1/php"/>
+					</mapping>
+					<mapping url="image">
+						<php:permissions writable="true" xmlns:php="http://apstandard.com/ns/1/php"/>
+						<mapping url="cache">
+							<php:permissions writable="true" xmlns:php="http://apstandard.com/ns/1/php"/>
+						</mapping>
+						<mapping url="data">
+							<php:permissions writable="true" xmlns:php="http://apstandard.com/ns/1/php"/>
+						</mapping>
+					</mapping>
+					<mapping url="system">
+						<mapping url="cache">
+							<php:permissions writable="true" xmlns:php="http://apstandard.com/ns/1/php"/>
+						</mapping>
+						<mapping url="logs">
+							<php:permissions writable="true" xmlns:php="http://apstandard.com/ns/1/php"/>
+						</mapping>
+					</mapping>
+				</mapping>
+			</url-mapping>
+			<configuration-script name="configure">
+				<script-language>php</script-language>
+			</configuration-script>
+		</provision>
+	</service>
+</application>

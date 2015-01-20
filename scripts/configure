@@ -1,0 +1,129 @@
+<?php
+ini_set('include_path', '.');
+
+require_once('env-parser.php');
+require_once('file-util.php');
+require_once('db-util.php');
+require_once('app-util.php');
+require_once('upgrade-app.php');
+require_once('custom.php');
+
+
+$config_files = array( '/' => array( array('config.php.in', 'config.php'), array('admconfig.php.in', 'admin/config.php')), '/cgi-bin' => array() );
+$schema_files = array( 'schema.sql' => 'main' );
+$reconf_schema_files = array( 'reconfigure.sql' => 'main' );
+$remove_schema_files = array( 'remove.sql' => 'main' );
+$upgrade_schema_files = array ();
+
+$psa_params = array (  );
+$db_ids = array ( 'main' );
+$web_ids = array ( '/' );
+$settings_params = array ( 'admin_name', 'admin_password', 'admin_email');
+$crypt_settings_params = array (  );
+$settings_enum_params = array();
+
+$psa_modify_hash = get_psa_modify_hash($psa_params);
+$db_modify_hash = get_db_modify_hash($db_ids);
+$web_modify_hash = get_web_modify_hash($web_ids);
+$settings_modify_hash = get_settings_modify_hash($settings_params);
+$settings_enum_modify_hash = get_settings_enum_modify_hash($settings_enum_params);
+$crypt_settings_modify_hash = get_crypt_settings_modify_hash($crypt_settings_params);
+
+
+$salt=substr(md5(uniqid(rand(), true)), 0, 9);
+$settings_modify_hash['@@SALT@@'] = $salt;
+$settings_modify_hash['@@ADMIN_PASSWORD@@'] = sha1($salt . sha1($salt . sha1($settings_modify_hash['@@ADMIN_PASSWORD@@'])));
+
+$directory_separator = getSystemDirectorySeparator();
+
+$additional_modify_hash = get_additional_modify_hash();
+
+if(count($argv) < 2)
+{
+    print "Usage: configure (install | upgrade <version> | configure | remove)\n";
+    exit(1);
+}
+
+$command = $argv[1];
+
+if($command != "install" && file_exists($psa_modify_hash['@@ROOT_DIR@@']."/config.php"))
+{
+	$db_modify_hash['@@DB_MAIN_PREFIX@@'] = get_current_dbprefix($psa_modify_hash['@@ROOT_DIR@@']."/config.php");
+}
+
+if($command == "upgrade")
+{
+    if($argv[2] && $argv[3]){
+		
+		define('APS_UPGRADE', 'on');
+		configure($config_files, $upgrade_schema_files, $db_ids, $psa_modify_hash, $db_modify_hash, $settings_modify_hash, $crypt_settings_modify_hash, $settings_enum_modify_hash, $additional_modify_hash);	
+		chmod($psa_modify_hash['@@ROOT_DIR@@']."/admin/config.php", 0777);
+		chmod($psa_modify_hash['@@ROOT_DIR@@']."/config.php", 0777);
+		$curdir = getcwd();
+		chdir($psa_modify_hash["@@ROOT_DIR@@"].'/install');
+		require_once($psa_modify_hash["@@ROOT_DIR@@"].'/install/aps_upgrade.php');
+		chdir($curdir);
+   		//Delete Install directory.
+		delete_directory($psa_modify_hash['@@ROOT_DIR@@'].$directory_separator."install");
+		exit(0);
+    }
+    else{
+		print "Error: upgrade version or release not specified.\n";
+		exit(1);
+    }
+}
+
+if($command == "install")
+{
+	configure($config_files, $schema_files, $db_ids, $psa_modify_hash, $db_modify_hash, $settings_modify_hash, $crypt_settings_modify_hash, $settings_enum_modify_hash, $additional_modify_hash);
+    
+    chmod($psa_modify_hash['@@ROOT_DIR@@']."/admin/config.php", 0777);
+    chmod($psa_modify_hash['@@ROOT_DIR@@']."/config.php", 0777);
+    
+	//Delete Install directory
+	delete_directory($psa_modify_hash['@@ROOT_DIR@@'].$directory_separator."install");
+   
+    exit(0);
+}
+
+if($command == "remove")
+{
+	remove_app($remove_schema_files, $db_ids, $psa_modify_hash, $db_modify_hash, $settings_modify_hash, $crypt_settings_modify_hash, $settings_enum_modify_hash, $additional_modify_hash);
+    exit(0);
+}
+
+if($command == "configure")
+{
+    configure($config_files, $reconf_schema_files, $db_ids, $psa_modify_hash, $db_modify_hash, $settings_modify_hash, $crypt_settings_modify_hash, $settings_enum_modify_hash, $additional_modify_hash);
+    exit(0);
+}
+
+function get_current_dbprefix($config_file)
+{
+	$db_id = 'main';
+	$lines = file($config_file);
+	foreach ($lines as $line) {
+		if (strpos(strtoupper($line), 'DB_PREFIX') !== false) {
+			$line = preg_replace("/.*DB_PREFIX[\"', ]*/", "", $line);		
+			$prefix = preg_replace("/[\"', );]*$/", "", $line);
+			$prefix = preg_replace("/[\n\r]*/", "", $prefix);
+			mysql_db_connect(get_db_address($db_id),
+				get_db_login($db_id),
+				get_db_password($db_id),
+				get_db_name($db_id));
+			// check if table <DB_PREFIX>user exists
+			$res = mysql_query("show create table `".$prefix."user`");
+			if ($res) {
+				return $prefix;
+			}
+			break;
+		}
+	}
+	// else, return original DB_MAIN_PREFIX
+	return get_db_prefix($db_id);
+}
+
+print "Error: unknown command $command.\n";
+exit(1);
+
+?>

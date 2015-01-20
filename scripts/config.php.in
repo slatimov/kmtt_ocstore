@@ -1,0 +1,27 @@
+<?php
+// HTTP
+define('HTTP_SERVER', '@@ROOT_URL@@/');
+
+// HTTPS
+define('HTTPS_SERVER', '@@ROOT_URL@@/');
+
+// DIR
+define('DIR_APPLICATION', '@@ROOT_DIR@@/catalog/');
+define('DIR_SYSTEM', '@@ROOT_DIR@@/system/');
+define('DIR_DATABASE', '@@ROOT_DIR@@/system/database/');
+define('DIR_LANGUAGE', '@@ROOT_DIR@@/catalog/language/');
+define('DIR_TEMPLATE', '@@ROOT_DIR@@/catalog/view/theme/');
+define('DIR_CONFIG', '@@ROOT_DIR@@/system/config/');
+define('DIR_IMAGE', '@@ROOT_DIR@@/image/');
+define('DIR_CACHE', '@@ROOT_DIR@@/system/cache/');
+define('DIR_DOWNLOAD', '@@ROOT_DIR@@/download/');
+define('DIR_LOGS', '@@ROOT_DIR@@/system/logs/');
+
+// DB
+define('DB_DRIVER', 'mysql');
+define('DB_HOSTNAME', '@@DB_MAIN_HOST@@');
+define('DB_USERNAME', '@@DB_MAIN_LOGIN@@');
+define('DB_PASSWORD', '@@DB_MAIN_PASSWORD@@');
+define('DB_DATABASE', '@@DB_MAIN_NAME@@');
+define('DB_PREFIX', '@@DB_MAIN_PREFIX@@');
+?>
